@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pensionszeit">
+<link rel="manifest" href="manifest.json">
+<title>Pensionszeit – Horst & Silvia</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1220;--panel:#121f32;--panel2:#172840;--line:#2a405d;--text:#f2f6fc;--muted:#a8b8cc;--gold:#f3c875;--blue:#76bdff;--green:#75d6b0}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -15%,#203c5e 0,#0a1220 58%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:22px}
+main{max-width:1080px;margin:auto}
+header{text-align:center;margin:8px 0 22px}
+header .mark{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:750}
+h1{font-size:clamp(30px,5vw,44px);margin:7px 0 4px;letter-spacing:-.03em}
+header p{margin:0;color:var(--muted)}
+.toolbar{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+.control{display:flex;align-items:center;gap:8px;background:#0e1a2b;border:1px solid var(--line);border-radius:12px;padding:8px 11px}
+label{font-size:12px;color:var(--muted);font-weight:650}
+select,input{max-width:100%;background:#172840;color:var(--text);border:1px solid #38516f;border-radius:8px;padding:9px 11px;font:inherit}
+select:focus,input:focus{outline:2px solid var(--blue);outline-offset:2px}
+.mode-switch{display:flex;gap:4px;background:#0e1a2b;border:1px solid var(--line);border-radius:12px;padding:4px}
+.mode-switch button{border:0;border-radius:8px;background:transparent;color:var(--muted);padding:9px 14px;font:inherit;cursor:pointer}
+.mode-switch button.active{background:#294767;color:#fff;box-shadow:0 2px 8px #0004}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#183957,#12243b 70%);border:1px solid #355a7b;border-radius:24px;padding:25px;text-align:center;box-shadow:0 18px 50px #0003}
+.hero:before{content:"";position:absolute;width:280px;height:280px;border-radius:50%;background:#5a9bd012;top:-180px;right:-70px}
+.eyebrow{position:relative;color:#c2d9ed;text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800}
+.target-date{font-size:clamp(26px,5vw,38px);font-weight:850;margin:7px 0 0}
+.hero-sub{color:#c2d2e3;font-size:13px}
+.digital{font-size:clamp(24px,4.7vw,42px);font-weight:850;color:var(--gold);margin:22px 0 5px;letter-spacing:-.025em;line-height:1.25;font-variant-numeric:tabular-nums}
+.digital-caption{color:#d0deec;font-size:13px}
+.analog-wrap{display:none;justify-content:center;align-items:center;margin:18px auto 4px}
+.dial{width:min(290px,70vw);aspect-ratio:1;border-radius:50%;position:relative;display:grid;place-items:center;background:conic-gradient(var(--gold) var(--progress,0%),#39516b 0);box-shadow:0 10px 35px #0005,inset 0 0 0 1px #ffffff18}
+.dial:before{content:"";position:absolute;inset:12px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#1c3550,#0d1c30 72%);border:1px solid #ffffff20}
+.dial-face{position:relative;z-index:1;width:100%;height:100%;display:grid;place-items:center}
+.dial-number{font-size:clamp(38px,8vw,56px);font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+.dial-label{font-size:12px;color:#c8d8e8;margin-top:5px}
+.dial-date{font-size:12px;color:#90a9c3;margin-top:12px}
+.dial-tick{position:absolute;z-index:2;width:3px;height:10px;background:#c9d8e8;border-radius:4px;top:18px;left:calc(50% - 1.5px);transform-origin:50% 127px;opacity:.8}
+.dial-tick.major{height:15px;width:4px;background:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+.tile{background:linear-gradient(145deg,#172840,#111e30);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.tile-label{font-size:12px;color:var(--muted);line-height:1.35;min-height:32px}
+.tile-value{font-size:clamp(22px,3vw,29px);font-weight:850;margin-top:6px;font-variant-numeric:tabular-nums}
+.tile-detail{font-size:11px;color:#8fa3ba;margin-top:4px;line-height:1.4}
+.section{margin:16px 0;background:#0f1b2d;border:1px solid var(--line);border-radius:18px;padding:18px}
+.section h2{font-size:19px;margin:0 0 12px}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.person-card{background:linear-gradient(145deg,#192c43,#122238);border:1px solid #314a66;border-radius:14px;padding:16px}
+.person-card .name{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800}
+.person-card .date{font-size:24px;font-weight:850;margin:5px 0}
+.person-card .age{font-size:12px;color:#b5c6d8}
+.person-card .days{font-size:21px;font-weight:850;color:var(--gold);margin-top:12px}
+.person-card .days-label{font-size:11px;color:var(--muted)}
+.difference{margin-top:14px;padding:13px 15px;border-radius:12px;background:#17344b;border:1px solid #315a75;color:#dceaf7;line-height:1.5}
+.difference strong{color:var(--gold)}
+.note{font-size:12px;line-height:1.55;color:var(--muted);margin:8px 0}
+.family-toolbar{display:none;margin:12px 0 8px;justify-content:center}.family-panel{display:none}.family-overview{margin:16px 0;background:#0f1b2d;border:1px solid var(--line);border-radius:18px;padding:18px}.family-overview h2{font-size:19px;margin:0 0 6px}.family-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.family-card{background:linear-gradient(145deg,#172840,#111e30);border:1px solid #314a66;border-radius:13px;padding:13px;min-width:0}.family-card strong{display:block;font-size:13px}.family-card .family-date{font-size:11px;color:var(--muted);margin-top:3px}.family-card .family-count{font-size:clamp(14px,2.3vw,20px);font-weight:850;color:var(--gold);font-variant-numeric:tabular-nums;margin-top:9px;line-height:1.35}.family-card.selected{border-color:var(--gold);box-shadow:0 0 0 1px #f3c87544}.family-card button{margin-top:8px;border:1px solid #45617f;background:#203b58;color:#fff;border-radius:8px;padding:6px 9px;font:inherit;font-size:11px;cursor:pointer}.family-list{display:grid;gap:8px;margin-top:12px}.family-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;background:#172840;border:1px solid #314a66;border-radius:11px;padding:9px 11px}.family-row small{display:block;color:var(--muted);font-size:11px}.family-row button,.family-actions button{border:1px solid #45617f;background:#203b58;color:#fff;border-radius:8px;padding:8px 10px;font:inherit;cursor:pointer}.family-form{display:grid;grid-template-columns:2fr 1fr auto auto;gap:9px;align-items:end}.family-form label{display:block;margin:0 0 5px}.family-form input{width:100%}.family-form .annual{display:flex;align-items:center;gap:6px;padding:10px 0}.family-form .annual input{width:auto}.family-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.family-hint{font-size:12px;color:var(--muted);margin:8px 0 0}
+@media(max-width:620px){.family-grid{grid-template-columns:1fr}.family-form{grid-template-columns:1fr 1fr}.family-form .wide{grid-column:1/-1}.family-row{grid-template-columns:minmax(0,1fr) auto}.family-row .remove{grid-column:2}}
+footer{text-align:center;color:#8195ad;font-size:11px;padding:16px 0 8px}
+.hidden{display:none!important}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){body{padding:12px}.compare-grid{grid-template-columns:1fr}.hero{padding:20px 13px}.control{width:100%;justify-content:space-between}.control select{max-width:65%}.mode-switch{width:100%}.mode-switch button{flex:1}.stats{gap:8px}.tile{padding:13px}.tile-label{min-height:30px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <div class="mark">Euer persönlicher Countdown</div>
+ <h1>Die Zeit bis zur Pension</h1>
+ <p>Horst & Silvia · übersichtlich vergleichen und umschalten</p>
+</header>
+
+<section class="section">
+ <h2>Frühester Pensionsantritt – Horst & Silvia im direkten Vergleich</h2>
+ <div class="compare-grid">
+  <div class="person-card">
+   <div class="name">Horst · geboren 18.12.1966</div>
+   <div class="date" id="horstDate">01.01.2029</div>
+   <div class="age" id="horstScenario">Frühestmöglich · 1. Jänner</div>
+   <div class="days" id="horstDays">–</div>
+   <div class="days-label">anrechenbare Tage verbleibend</div>
+  </div>
+  <div class="person-card">
+   <div class="name">Silvia · geboren 23.12.1967</div>
+   <div class="date" id="silviaDate">01.01.2030</div>
+   <div class="age" id="silviaScenario">Frühestmöglich · 1. Jänner</div>
+   <div class="days" id="silviaDays">–</div>
+   <div class="days-label">anrechenbare Tage verbleibend</div>
+  </div>
+ </div>
+ <div class="difference" id="difference">–</div>
+</section>
+
+<section class="hero">
+ <div class="eyebrow" id="heroPerson">Horst</div>
+ <div class="target-date" id="targetDate">01.01.2029</div>
+ <div class="hero-sub" id="targetLabel">Frühestmöglich · 1. Jänner</div>
+ <div id="digitalView">
+  <div class="digital" id="countdown">–</div>
+  <div class="digital-caption" id="countdownCaption">Jahre · Monate · Tage · Minuten · Sekunden</div>
+ </div>
+ <div class="analog-wrap" id="analogView">
+  <div class="dial" id="dial">
+   <div class="dial-face">
+    <div>
+     <div class="dial-number" id="analogDays">–</div>
+     <div class="dial-label">anrechenbare Tage</div>
+     <div class="dial-date" id="analogProgress">Fortschritt bis zur Pension</div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
+
+
+
+<div class="toolbar">
+ <div class="control"><label for="counterMode">Counter</label><select id="counterMode"><option value="pension" selected>Pensionscounter</option><option value="family">Familiencounter</option></select></div>
+ <div class="control pension-only"><label for="person">Person</label><select id="person"><option value="horst">Horst</option><option value="silvia">Silvia</option></select></div>
+ <div class="control pension-only"><label for="scenario">Pensionsvariante</label><select id="scenario"></select></div>
+</div>
+<div class="toolbar pension-only">
+ <div class="control"><label for="vacation">Urlaubstage/Jahr</label><input id="vacation" type="number" min="0" max="60" step="1" value="33" style="width:72px"></div>
+ <div class="control"><label for="timeBasis">Zeitberechnung</label><select id="timeBasis"><option value="calendar">Gesamte Zeit bis Pension</option><option value="workdays" selected>Gesamte Arbeitstage</option></select></div>
+ <div class="control"><label for="timeUnit">Zeiteinheit</label><select id="timeUnit"><option value="dms" selected>Tage · Stunden · Minuten · Sekunden</option><option value="breakdown">Aufgliederung (Jahre bis Sekunden)</option><option value="years">Gesamte Jahre</option><option value="months">Gesamte Monate</option><option value="weeks">Gesamte Wochen</option><option value="days">Gesamte Tage</option><option value="hours">Gesamte Stunden</option><option value="minutes">Gesamte Minuten</option><option value="seconds">Gesamte Sekunden</option></select></div>
+ <div class="mode-switch" role="group" aria-label="Darstellung">
+  <button type="button" id="digitalBtn" class="active" aria-pressed="true">Digital</button>
+  <button type="button" id="analogBtn" aria-pressed="false">Analog</button>
+ </div>
+</div>
+<div class="control"><label for="familyTimeUnit">Zeiteinheit</label><select id="familyTimeUnit"><option value="dms">Tage · Stunden · Minuten · Sekunden</option><option value="breakdown">Aufgliederung (Jahre bis Sekunden)</option><option value="years">Gesamte Jahre</option><option value="months">Gesamte Monate</option><option value="weeks">Gesamte Wochen</option><option value="days">Gesamte Tage</option><option value="hours">Gesamte Stunden</option><option value="minutes">Gesamte Minuten</option><option value="seconds">Gesamte Sekunden</option></select></div>
+</div>
+
+
+
+<div class="stats pension-only">
+ <div class="tile"><div class="tile-label">Verbleibende anrechenbare Tage</div><div class="tile-value" id="workdays">–</div><div class="tile-detail">Werktage nach Abzug von Feiertagen und Urlaub</div></div>
+ <div class="tile"><div class="tile-label">Wochenenden</div><div class="tile-value" id="weekends">–</div><div class="tile-detail">Samstage und Sonntage im Zeitraum</div></div>
+ <div class="tile"><div class="tile-label">Feiertage an Werktagen</div><div class="tile-value" id="holidays">–</div><div class="tile-detail">Bundesweite gesetzliche Feiertage in Österreich</div></div>
+ <div class="tile"><div class="tile-label">Geschätzte Urlaubstage</div><div class="tile-value" id="vacationDays">–</div><div class="tile-detail">Nach eingestelltem Jahreswert</div></div>
+</div>
+
+<section class="section pension-only">
+ <h2>So wird gerechnet</h2>
+ <p class="note">Die Pensionsvarianten für Silvia liegen jeweils genau ein Kalenderjahr nach der entsprechenden Variante von Horst, weil Silvia ein Jahr jünger ist. Das ist die von dir gewünschte Vergleichsannahme.</p>
+ <p class="note">Gezählt werden Werktage ab morgen bis einschließlich zum Tag vor dem Pensionsantritt. Samstage, Sonntage und bundesweite gesetzliche Feiertage Österreichs werden ausgeschlossen. Zusätzlich werden Urlaubstage pauschal anhand des eingestellten Jahreswerts (Standard 33 Tage) geschätzt.</p>
+ <p class="note">Über „Zeitberechnung“ kannst du zwischen der gesamten Kalenderzeit bis zum Pensionsantritt und der Summe der verbleibenden anrechenbaren Arbeitstage umschalten. „Zeiteinheit“ gilt für beide Ansichten: Aufgliederung oder gesamte Jahre, Monate, Wochen, Tage, Stunden, Minuten und Sekunden. Bei der Arbeitstage-Ansicht wird ein anrechenbarer Tag für die Umrechnung mit 24 Stunden angesetzt; das ist keine minutengenaue dienstrechtliche Arbeitszeitberechnung.</p>
+ <p class="note">Die Pensionsdaten sind deine Rechenszenarien, keine Bestätigung eines gesetzlichen Pensionsanspruchs. Der tatsächliche Urlaubsverbrauch, Resturlaub, regionale Feiertage und persönliche dienstfreie Tage können das Ergebnis verändern.</p>
+</section>
+<div class="toolbar family-toolbar" id="familyToolbar">
+ <div class="control"><label for="familyEvent">Familienereignis</label><select id="familyEvent"></select></div>
+ 
+<section class="family-overview" id="familyOverview">
+ <h2>Familientermine – eure nächsten Countdowns</h2>
+ <p class="note">Alle Familienereignisse werden hier gleichzeitig als eigene Countdowns angezeigt. Die Zeiteinheit steuerst du oben über „Zeiteinheit“ – wahlweise Tage/Stunden/Minuten/Sekunden, Aufgliederung von Jahren bis Sekunden oder eine Gesamteinheit. Ein Klick auf einen Termin öffnet ihn als großen Hauptcounter.</p>
+ <div class="family-grid" id="familyOverviewGrid"></div>
+</section>
+
+<section class="section family-panel" id="familyPanel">
+ <h2>Familienereignisse verwalten</h2>
+ <p class="note">Hier kannst du weitere Geburtstage und Termine hinzufügen, bestehende Einträge ändern oder löschen. Geburtstage und Weihnachten werden jährlich wiederholt; einmalige Termine wie Hochzeiten laufen nach dem Datum aus. Gelöschte Einträge bleiben gelöscht. Die Liste wird lokal auf diesem Gerät gespeichert.</p>
+ <div class="family-form">
+  <div class="wide"><label for="eventName">Bezeichnung</label><input id="eventName" type="text" placeholder="z. B. Geburtstag ..."></div>
+  <div><label for="eventDate">Datum</label><input id="eventDate" type="date"></div>
+  <label class="annual"><input id="eventAnnual" type="checkbox"> Jährlich</label>
+ </div>
+ <div class="family-actions"><button type="button" id="saveEvent">Eintrag hinzufügen</button><button type="button" id="cancelEdit" class="hidden">Abbrechen</button></div>
+ <div class="family-list" id="familyList"></div>
+</section>
+
+
+<footer>Für Windows, iPhone und iPad · Offlinefähig nach erstem Laden über eine HTTPS-Adresse</footer>
+</main>
+<script>
+const SCENARIOS=[
+ {id:'early_jan',label:'Frühestmöglich · 1. Jänner',h:'2029-01-01',s:'2030-01-01'},
+ {id:'early_jul',label:'Frühestmöglich · 1. Juli',h:'2029-07-01',s:'2030-07-01'},
+ {id:'age63_jan',label:'Mit 63 Jahren · 1. Jänner',h:'2030-01-01',s:'2031-01-01'},
+ {id:'age63_jul',label:'Mit 63 Jahren · 1. Juli',h:'2030-07-01',s:'2031-07-01'},
+ {id:'age64_jan',label:'Mit 64 Jahren · 1. Jänner',h:'2031-01-01',s:'2032-01-01'},
+ {id:'age65',label:'Offizielle Pension · mit 65 Jahren',h:'2032-01-01',s:'2033-01-01'}
+];
+const $=id=>document.getElementById(id), DAY=86400000, SECONDS_PER_DAY=86400, AVG_YEAR=365.2425, AVG_MONTH=AVG_YEAR/12;
+let activeMode='digital', currentRemainingSeconds=0, initialRemainingDays=0, countdownBase=0, calendarTargetMs=0, initialCalendarSeconds=0;
+function dateFromISO(iso){const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d)}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function fmtDate(d){return new Intl.DateTimeFormat('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'}).format(d)}
+function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),month=Math.floor((h+l-7*m+114)/31),day=(h+l-7*m+114)%31+1;return new Date(y,month-1,day)}
+function holidays(y){const e=easterSunday(y),a=[`${y}-01-01`,`${y}-01-06`,`${y}-05-01`,`${y}-08-15`,`${y}-10-26`,`${y}-11-01`,`${y}-12-08`,`${y}-12-25`,`${y}-12-26`].map(dateFromISO);[1,39,50,60].forEach(n=>a.push(addDays(e,n)));return new Set(a.map(iso))}
+function countEligible(target,annualVacation){
+ const now=new Date(),start=addDays(new Date(now.getFullYear(),now.getMonth(),now.getDate()),1);
+ let weekdays=0,weekends=0,holidayWeekdays=0;const holidayCache={};
+ for(let d=new Date(start);d<target;d=addDays(d,1)){
+  const wd=d.getDay();if(wd===0||wd===6){weekends++;continue}
+  const y=d.getFullYear();if(!holidayCache[y])holidayCache[y]=holidays(y);
+  if(holidayCache[y].has(iso(d)))holidayWeekdays++;else weekdays++;
+ }
+ const years=Math.max(0,(target-start)/DAY/AVG_YEAR);
+ const vacation=Math.min(weekdays,Math.round(years*annualVacation));
+ return {workdays:Math.max(0,weekdays-vacation),weekends,holidayWeekdays,vacation};
+}
+function selected(){return SCENARIOS.find(x=>x.id===$('scenario').value)||SCENARIOS[0]}
+const DEFAULT_FAMILY_EVENTS=[
+ {id:'horst-bday',name:'Geburtstag Horst',date:'1966-12-18',annual:true},
+ {id:'silvia-bday',name:'Geburtstag Silvia',date:'1967-12-23',annual:true},
+ {id:'patrik-bday',name:'Geburtstag Patrik',date:'1996-01-19',annual:true},
+ {id:'florian-bday',name:'Geburtstag Florian',date:'2002-12-18',annual:true},
+ {id:'christmas',name:'Weihnachten',date:'2026-12-24',annual:true},
+ {id:'patrik-wedding',name:'Hochzeit Patrik & Rosi',date:'2027-09-11',annual:false},
+ {id:'rosi-mama-bday',name:'Mama Rosi · Geburtstag',date:'1938-02-13',annual:true},
+ {id:'horst-silvia-anniversary',name:'Hochzeitstag Horst & Silvia',date:'1991-08-31',annual:true},
+ {id:'horst-60-party',name:'Horsts 60er-Feier',date:'2026-12-18',annual:false}
+];
+const FAMILY_STORAGE_KEY='pensionszeit-family-events-v5';
+const LEGACY_FAMILY_STORAGE_KEYS=['pensionszeit-family-events-v4','pensionszeit-family-events-v3'];
+let familyEvents=loadFamilyEvents(),editingEventId=null;
+function loadFamilyEvents(){
+ try{
+  const current=localStorage.getItem(FAMILY_STORAGE_KEY);
+  if(current!==null){const parsed=JSON.parse(current);if(Array.isArray(parsed))return parsed.filter(validFamilyEvent);}
+  // Bestehende Einträge aus früheren App-Versionen übernehmen und nur neue Standardtermine ergänzen.
+  for(const key of LEGACY_FAMILY_STORAGE_KEYS){
+   const legacy=localStorage.getItem(key);
+   if(legacy!==null){
+    const parsed=JSON.parse(legacy);
+    if(Array.isArray(parsed)){
+     const valid=parsed.filter(validFamilyEvent),ids=new Set(valid.map(e=>e.id));
+     const migrated=[...valid,...DEFAULT_FAMILY_EVENTS.filter(e=>!ids.has(e.id)).map(e=>({...e}))];
+     localStorage.setItem(FAMILY_STORAGE_KEY,JSON.stringify(migrated));
+     return migrated;
+    }
+   }
+  }
+ }catch(err){console.warn('Familienliste konnte nicht geladen werden:',err);}
+ return DEFAULT_FAMILY_EVENTS.map(e=>({...e}));
+}
+function validFamilyEvent(e){return !!(e&&typeof e.id==='string'&&typeof e.name==='string'&&e.name.trim()&&/^\d{4}-\d{2}-\d{2}$/.test(e.date)&&!Number.isNaN(dateFromISO(e.date).getTime())&&typeof e.annual==='boolean');}
+function saveFamilyEvents(){
+ try{localStorage.setItem(FAMILY_STORAGE_KEY,JSON.stringify(familyEvents));return true;}
+ catch(err){console.warn('Familienliste bleibt bis zum Schließen der Seite nur im Arbeitsspeicher:',err);return false;}
+}
+function nextEventDate(ev){
+ const base=dateFromISO(ev.date);
+ if(Number.isNaN(base.getTime()))return new Date();
+ const today=new Date(),start=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+ if(!ev.annual)return base;
+ let d=new Date(start.getFullYear(),base.getMonth(),base.getDate());
+ // 29. Februar: In Nicht-Schaltjahren am 1. März feiern.
+ if(base.getMonth()===1&&base.getDate()===29&&d.getMonth()!==1)d=new Date(start.getFullYear(),2,1);
+ if(d<start){const y=start.getFullYear()+1;d=new Date(y,base.getMonth(),base.getDate());if(base.getMonth()===1&&base.getDate()===29&&d.getMonth()!==1)d=new Date(y,2,1);}
+ return d;
+}
+function familySeconds(ev){
+ const target=nextEventDate(ev);
+ // Countdown bis zum Beginn des Ereignistages (lokale Mitternacht).
+ return Math.max(0,Math.floor((target.getTime()-Date.now())/1000));
+}
+function renderFamily(){
+ const sel=$('familyEvent'),previous=sel.value;
+ sel.replaceChildren();
+ familyEvents.forEach(ev=>{const option=document.createElement('option');option.value=ev.id;option.textContent=ev.name;sel.appendChild(option);});
+ if(familyEvents.some(e=>e.id===previous))sel.value=previous;
+ else if(familyEvents.length)sel.value=familyEvents[0].id;
+ const ev=familyEvents.find(e=>e.id===sel.value);
+ if(ev){
+  const target=nextEventDate(ev),isPast=!ev.annual&&target.getTime()<Date.now();
+  $('heroPerson').textContent=ev.name;
+  $('targetDate').textContent=fmtDate(target);
+  $('targetLabel').textContent=isPast?'Dieser einmalige Termin ist bereits vorbei':(ev.annual?'Nächster jährlicher Termin':'Einmaliger Termin');
+  $('countdown').textContent=formatDuration(familySeconds(ev),$('familyTimeUnit').value);
+  $('countdownCaption').textContent='Countdown bis zum Familienereignis · '+$('familyTimeUnit').selectedOptions[0].textContent;
+  $('analogDays').textContent=Math.floor(familySeconds(ev)/SECONDS_PER_DAY).toLocaleString('de-AT');
+  $('dial').querySelector('.dial-label').textContent='Tage bis zum Ereignis';
+  $('analogProgress').textContent=ev.annual?'Bis zum nächsten Jahrestag':'Bis zum einmaligen Termin';
+  $('dial').style.setProperty('--progress','0%');
+ }else{
+  $('heroPerson').textContent='Keine Familienereignisse';$('targetDate').textContent='–';$('targetLabel').textContent='Füge unten einen Termin hinzu';
+  $('countdown').textContent='–';$('countdownCaption').textContent='Noch keine Familienereignisse vorhanden';$('analogDays').textContent='–';
+ }
+ const list=$('familyList');list.replaceChildren();
+ if(!familyEvents.length){const empty=document.createElement('p');empty.className='family-hint';empty.textContent='Noch keine Einträge vorhanden.';list.appendChild(empty);}
+ familyEvents.forEach(ev=>{
+  const row=document.createElement('div');row.className='family-row';
+  const info=document.createElement('div');info.textContent=ev.name;
+  const small=document.createElement('small');small.textContent=fmtDate(dateFromISO(ev.date))+(ev.annual?' · jährlich':' · einmalig');info.appendChild(small);
+  const edit=document.createElement('button');edit.type='button';edit.textContent='Bearbeiten';edit.addEventListener('click',()=>editFamilyEvent(ev.id));
+  const del=document.createElement('button');del.type='button';del.className='remove';del.textContent='Löschen';del.addEventListener('click',()=>{
+   if(confirm('Diesen Familieneintrag wirklich löschen?')){familyEvents=familyEvents.filter(x=>x.id!==ev.id);saveFamilyEvents();if(editingEventId===ev.id)resetEventForm();renderFamily();}
+  });
+  row.append(info,edit,del);list.appendChild(row);
+ });
+ renderFamilyOverview();
+}
+function renderFamilyOverview(){
+ const grid=$('familyOverviewGrid');if(!grid)return;grid.replaceChildren();
+ const selectedId=$('familyEvent').value;
+ const ordered=[...familyEvents].sort((a,b)=>nextEventDate(a)-nextEventDate(b));
+ ordered.forEach(ev=>{
+  const target=nextEventDate(ev),sec=familySeconds(ev),card=document.createElement('div');card.className='family-card'+(ev.id===selectedId&&$('counterMode').value==='family'?' selected':'');
+  const title=document.createElement('strong');title.textContent=ev.name;
+  const date=document.createElement('div');date.className='family-date';date.textContent=fmtDate(target)+(ev.annual?' · jährlich':' · einmalig');
+  const count=document.createElement('div');count.className='family-count';count.textContent=formatDuration(sec,$('timeUnit').value);
+  const action=document.createElement('button');action.type='button';action.textContent='Als Hauptcounter anzeigen';
+  action.addEventListener('click',()=>{$('counterMode').value='family';$('familyEvent').value=ev.id;$('familyTimeUnit').value=$('timeUnit').value;switchCounterMode();});
+  card.append(title,date,count,action);grid.appendChild(card);
+ });
+ if(!familyEvents.length){const empty=document.createElement('p');empty.className='note';empty.textContent='Noch keine Familientermine eingetragen.';grid.appendChild(empty);}
+}
+function editFamilyEvent(id){
+ const ev=familyEvents.find(x=>x.id===id);if(!ev)return;
+ editingEventId=id;$('eventName').value=ev.name;$('eventDate').value=ev.date;$('eventAnnual').checked=!!ev.annual;
+ $('saveEvent').textContent='Änderungen speichern';$('cancelEdit').classList.remove('hidden');$('eventName').focus();
+}
+function resetEventForm(){
+ editingEventId=null;$('eventName').value='';$('eventDate').value='';$('eventAnnual').checked=false;
+ $('saveEvent').textContent='Eintrag hinzufügen';$('cancelEdit').classList.add('hidden');
+}
+function switchCounterMode(){
+ const family=$('counterMode').value==='family';
+ document.querySelectorAll('.pension-only').forEach(el=>el.classList.toggle('hidden',family));
+ $('familyToolbar').style.display=family?'flex':'none';
+ $('familyPanel').style.display=family?'block':'none';
+ if(family){$('familyTimeUnit').value=$('timeUnit').value;renderFamily();updateFamilyLive();}else render();
+}
+function updateFamilyLive(){
+ if($('counterMode').value!=='family')return;
+ const ev=familyEvents.find(e=>e.id===$('familyEvent').value);if(!ev)return;
+ const sec=familySeconds(ev);$('countdown').textContent=formatDuration(sec,$('familyTimeUnit').value);
+ $('analogDays').textContent=Math.floor(sec/SECONDS_PER_DAY).toLocaleString('de-AT');
+ renderFamilyOverview();
+}
+function fillOptions(){
+ const person=$('person').value,sel=$('scenario'),old=sel.value||'early_jan';sel.innerHTML='';
+ SCENARIOS.forEach(x=>{const o=document.createElement('option');o.value=x.id;o.textContent=`${x.label} (${fmtDate(dateFromISO(person==='horst'?x.h:x.s))})`;sel.appendChild(o)});
+ sel.value=SCENARIOS.some(x=>x.id===old)?old:'early_jan';
+}
+function setMode(mode){
+ activeMode=mode;
+ $('digitalBtn').classList.toggle('active',mode==='digital');
+ $('analogBtn').classList.toggle('active',mode==='analog');
+ $('digitalBtn').setAttribute('aria-pressed',String(mode==='digital'));
+ $('analogBtn').setAttribute('aria-pressed',String(mode==='analog'));
+ $('digitalView').classList.toggle('hidden',mode!=='digital');
+ $('analogView').style.display=mode==='analog'?'flex':'none';
+}
+function getRemainingSeconds(){return Math.max(0,currentRemainingSeconds-Math.floor((Date.now()-countdownBase)/1000))}
+function getCurrentTotalSeconds(){
+ if($('timeBasis').value==='workdays') return getRemainingSeconds();
+ return Math.max(0,Math.floor((calendarTargetMs-Date.now())/1000));
+}
+function formatDuration(sec,unit){
+ sec=Math.max(0,sec);
+ const totalDays=sec/SECONDS_PER_DAY;
+ const total={years:totalDays/AVG_YEAR,months:totalDays/AVG_MONTH,weeks:totalDays/7,days:totalDays,hours:sec/3600,minutes:sec/60,seconds:sec};
+ const fmt=n=>Math.floor(n).toLocaleString('de-AT');
+ if(unit==='dms'){
+  const wholeDays=Math.floor(sec/SECONDS_PER_DAY),hours=Math.floor((sec%SECONDS_PER_DAY)/3600),minutes=Math.floor((sec%3600)/60),seconds=Math.floor(sec%60);
+  return `${fmt(wholeDays)} Tage · ${String(hours).padStart(2,'0')} Std · ${String(minutes).padStart(2,'0')} Min · ${String(seconds).padStart(2,'0')} Sek`;
+ }
+ if(unit!=='breakdown'){
+  const names={years:'Jahre',months:'Monate',weeks:'Wochen',days:'Tage',hours:'Stunden',minutes:'Minuten',seconds:'Sekunden'};
+  return `${fmt(total[unit])} ${names[unit]}`;
+ }
+ let rem=totalDays;const years=Math.floor(rem/AVG_YEAR);rem-=years*AVG_YEAR;
+ const months=Math.floor(rem/AVG_MONTH);rem-=months*AVG_MONTH;
+ const weeks=Math.floor(rem/7);rem-=weeks*7;
+ const days=Math.floor(rem);rem-=days;
+ const hours=Math.floor(rem*24);rem=rem*24-hours;
+ const minutes=Math.floor(rem*60);const seconds=Math.floor((rem*3600)%60);
+ return `${years} J · ${months} Mon · ${weeks} Wo · ${days} T · ${hours} Std · ${minutes} Min · ${seconds} Sek`;
+}
+function updateLive(){
+ const sec=getCurrentTotalSeconds(),basis=$('timeBasis').value,unit=$('timeUnit').value;
+ $('countdown').textContent=formatDuration(sec,unit);
+ $('countdownCaption').textContent=basis==='workdays'?'Gesamte anrechenbare Arbeitstage – in der gewählten Einheit':'Gesamte Kalenderzeit bis zum Pensionsantritt – in der gewählten Einheit';
+ const shownDays=basis==='workdays'?sec/SECONDS_PER_DAY:sec/SECONDS_PER_DAY;
+ $('analogDays').textContent=Math.floor(shownDays).toLocaleString('de-AT');
+ $('dial').querySelector('.dial-label').textContent=basis==='workdays'?'anrechenbare Arbeitstage':'Kalendertage';
+ const initial=basis==='workdays'?initialRemainingDays:initialCalendarSeconds/SECONDS_PER_DAY;
+ const pct=initial>0?Math.min(100,Math.max(0,(1-shownDays/initial)*100)):100;
+ $('dial').style.setProperty('--progress',pct+'%');
+ $('analogProgress').textContent=`${pct.toFixed(1).replace('.',',')} % des Countdowns vergangen`;
+}
+function render(){
+ const sc=selected(),person=$('person').value,target=dateFromISO(person==='horst'?sc.h:sc.s);
+ const annual=Math.max(0,Math.min(60,Number($('vacation').value)||0));
+ const c=countEligible(target,annual);
+ $('heroPerson').textContent=person==='horst'?'Horst Kampichler':'Silvia Kampichler';
+ $('targetDate').textContent=fmtDate(target);$('targetLabel').textContent=sc.label;
+ $('workdays').textContent=c.workdays.toLocaleString('de-AT');
+ $('weekends').textContent=c.weekends.toLocaleString('de-AT');
+ $('holidays').textContent=c.holidayWeekdays.toLocaleString('de-AT');
+ $('vacationDays').textContent=c.vacation.toLocaleString('de-AT');
+ initialRemainingDays=c.workdays;currentRemainingSeconds=c.workdays*SECONDS_PER_DAY;countdownBase=Date.now();calendarTargetMs=target.getTime();initialCalendarSeconds=Math.max(0,Math.floor((calendarTargetMs-Date.now())/1000));
+ const hDate=dateFromISO(sc.h),sDate=dateFromISO(sc.s),h=countEligible(hDate,annual),s=countEligible(sDate,annual);
+ $('horstDate').textContent=fmtDate(hDate);$('silviaDate').textContent=fmtDate(sDate);
+ $('horstScenario').textContent=sc.label;$('silviaScenario').textContent=sc.label;
+ $('horstDays').textContent=h.workdays.toLocaleString('de-AT');$('silviaDays').textContent=s.workdays.toLocaleString('de-AT');
+ const gap=Math.round((sDate-hDate)/DAY);
+ const yearsApart=(sDate.getFullYear()-hDate.getFullYear());
+ $('difference').innerHTML=`<strong>Silvia ist ein Jahr jünger.</strong> Bei dieser Auswahl liegt ihr Pensionsdatum ${yearsApart} Kalenderjahr(e) bzw. ${gap.toLocaleString('de-AT')} Kalendertage nach Horsts Termin. Damit könnt ihr beide Countdown-Zahlen direkt vergleichen.`;
+ updateLive();
+}
+$('person').addEventListener('change',()=>{fillOptions();render()});
+$('scenario').addEventListener('change',render);
+$('vacation').addEventListener('input',render);
+$('timeBasis').addEventListener('change',updateLive);
+$('timeUnit').addEventListener('change',()=>{updateLive();$('familyTimeUnit').value=$('timeUnit').value;renderFamilyOverview();});
+$('familyTimeUnit').addEventListener('change',()=>{$('timeUnit').value=$('familyTimeUnit').value;renderFamily();updateFamilyLive();});
+$('digitalBtn').addEventListener('click',()=>setMode('digital'));
+$('analogBtn').addEventListener('click',()=>setMode('analog'));
+$('counterMode').addEventListener('change',switchCounterMode);
+$('familyEvent').addEventListener('change',renderFamily);
+$('saveEvent').addEventListener('click',()=>{const name=$('eventName').value.trim(),date=$('eventDate').value;if(!name||!date||Number.isNaN(dateFromISO(date).getTime())){alert('Bitte eine Bezeichnung und ein gültiges Datum eingeben.');return;}const id=editingEventId||('event-'+Date.now()),item={id,name,date,annual:$('eventAnnual').checked};if(editingEventId)familyEvents=familyEvents.map(x=>x.id===editingEventId?item:x);else familyEvents.push(item);saveFamilyEvents();resetEventForm();renderFamily();$('familyEvent').value=id;renderFamily();});
+$('cancelEdit').addEventListener('click',resetEventForm);
+fillOptions();setMode('digital');render();renderFamily();setInterval(()=>{updateLive();updateFamilyLive();renderFamilyOverview();},1000);
+if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./service-worker.js').catch(()=>{});}
+</script>
+</body>
+</html>
